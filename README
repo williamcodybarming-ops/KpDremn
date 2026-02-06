@@ -1,0 +1,14 @@
+First Principles Architecture
+KpDremn is built on the belief that State Integrity > Feature Velocity. Most super-apps fail because their financial and social layers are decoupled. KpDremn uses a Unified State Machine model.
+1. Deterministic Financial Invariants
+We don't "hope" the database is correct; we prove it.
+The Invariant: At any timestamp t, \sum \text{Balances} \equiv \sum \text{Ledger Entries}.
+The Enforcement: If the Nightly Audit Engine detects a variance of \epsilon > 0, the system enters a Fail-Safe State, severing all write-access to the API until a manual recovery is performed.
+2. Cryptographic Continuity (The Golden Thread)
+Data is not stored in isolation. Every transaction is part of a "Golden Thread."// Each block points to the hash of the last, creating a chain of truth.
+Current_Hash = SHA256(Transaction_Data + Previous_Hash)
+This ensures that the database is Audit-Visible. If an attacker modifies a row from 3 months ago, the chain breaks immediately, and the Audit Engine triggers the Kill-Switch.
+3. Atomic Handshakes
+Payments are never "sent"; they are "swapped" within an ACID-compliant transaction block.
+No Partial States: If the merchant update fails, the user deduction rolls back.
+No Double Spends: Balance checks are performed at the database engine level, not the application level.
